@@ -1,18 +1,17 @@
 {
   "manifest_version": 2,
-  "name": "IMDb ratings on Netflix",
-  "version": "0.146",
-  "description": "View IMDb ratings on Netflix",
+  "name": "Goodreads rating on Overdrive",
+  "version": "0.1",
+  "description": "Show Goodreads ratings on Overdrive",
   "content_scripts": [
   {
     "matches": [
-      "https://www.netflix.com/*", "https://www.omdbapi.com/*"
+      "https://*.overdrive.com/*"
     ],
     "js": ["content.js"]
   }
   ],
-  "icons": { "16": "icon16.png", "48":"icon48.png"},
   "permissions": [
-    "https://www.netflix.com/*", "https://www.omdbapi.com/*"
+      "https://*.overdrive.com/*"
   ]
 }

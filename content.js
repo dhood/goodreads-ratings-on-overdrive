@@ -1,61 +1,49 @@
-function fetchMovieNameYear() {
-    var synopsis = document.querySelectorAll('.jawBone .jawbone-title-link');
-    if (synopsis === null) {
+function fetchBookInfo() {
+    // Fetch the info panel for all books displayed on the current page.
+    var bookList = document.querySelectorAll('.InfoPanel');
+    if (bookList === null) {
         return;
     }
 
-    var logoElement = document.querySelectorAll('.jawBone .jawbone-title-link .title');
+    // Iterate over all books on the page.
+    for (let bookInfo of bookList) {
 
-    if (logoElement.length === 0)
-        return;
+        var titleNameElem = bookInfo.querySelector('.title-name')
+        if (!titleNameElem) {
+            break;
+        }
+        var titleName = titleNameElem.title;
 
-    logoElement = logoElement[logoElement.length - 1];
+        var titleAuthorElem = bookInfo.querySelector('.title-author a')
+        if (!titleAuthorElem) {
+            break;
+        }
+        var titleAuthor = titleAuthorElem.title;
 
-    var title = logoElement.textContent;
-
-    if (title === "")
-        title = logoElement.querySelector(".logo").getAttribute("alt");
-
-    var titleElement = document.querySelectorAll('.jawBone .jawbone-title-link .title .text').textContent;
-
-    var yearElement = document.querySelectorAll('.jawBone .jawbone-overview-info .meta .year');
-    if (yearElement.length === 0)
-        return;
-    var year = yearElement[yearElement.length - 1].textContent;
-
-    var divId = getDivId(title, year);
-    var divEl = document.getElementById(divId);
-    if (divEl && (divEl.offsetWidth || divEl.offsetHeight || divEl.getClientRects().length)) {
-        return;
-    }
-
-    var existingImdbRating = window.sessionStorage.getItem(title + ":" + year);
-    if ((existingImdbRating !== "undefined") && (existingImdbRating !== null)) {
-        addIMDBRating(existingImdbRating, title, year);
-        //if imdbRating is fetched, rotten/metaScore is fetched too
-        var rottenRating = window.sessionStorage.getItem("rotten" + ":" + title + ":" + year);
-        addRottenRating(rottenRating, title, year);
-
-        var metaScore = window.sessionStorage.getItem("metaScore" + ":" + title + ":" + year);
-        addMetaScore(metaScore, title, year);
-    } else {
-        makeRequestAndAddRating(title, year)
+        console.log("Retrieving storage for: " + titleName + " by " + titleAuthor);
+        var existingGoodreadsRating = window.sessionStorage.getItem(titleName + ":" + titleAuthor);
+        if ((existingGoodreadsRating !== "undefined") && (existingGoodreadsRating !== null)) {
+            addGoodreadsRating(existingGoodreadsRating, bookInfo, titleName, titleAuthor);
+        } else {
+            makeRequestAndAddRating(bookInfo, titleName, titleAuthor)
+        }
     }
 };
 
-function addIMDBRating(imdbMetaData, name, year) {
-    var divId = getDivId(name, year);
+function addGoodreadsRating(goodreadsMetaData, bookInfo, titleName, titleAuthor) {
+    console.log(titleName);
+    console.log(titleAuthor);
+    var divId = getDivId(titleName, titleAuthor);
 
+    // TODO(dhood): allow duplicates of title (audiobook + ebook) to each have div added.
     var divEl = document.getElementById(divId);
     if (divEl && (divEl.offsetWidth || divEl.offsetHeight || divEl.getClientRects().length)) {
         return;
     }
 
-    var synopsises = document.querySelectorAll('.jawBone .synopsis');
-    if (synopsises.length) {
-        var synopsis = synopsises[synopsises.length - 1];
-        var div = document.createElement('div');
 
+    // TODO(dhood): fetch actual score data.
+    /*
         var imdbRatingPresent = imdbMetaData && (imdbMetaData !== 'undefined') && (imdbMetaData !== "N/A");
         var imdbVoteCount = null;
         var imdbRating = null;
@@ -66,69 +54,40 @@ function addIMDBRating(imdbMetaData, name, year) {
             imdbVoteCount = imdbMetaDataArr[1];
             imdbId = imdbMetaDataArr[2];
         }
-        var imdbHtml = 'IMDb rating : ' + (imdbRatingPresent ? imdbRating : "N/A") + (imdbVoteCount ? ", Vote Count : " + imdbVoteCount : "");
+        var imdbHtml = 'Goodreads rating : ' + (goodreadsRatingPresent ? goodreadsRating : "N/A") + (goodreadsVoteCount ? ", Vote Count : " + goodreadsVoteCount : "");
+        */
+       var goodreadsHtml = 'Goodreads rating: 5';
 
-        if (imdbId !== null) {
-            imdbHtml = "<a target='_blank' href='https://www.imdb.com/title/" + imdbId + "'>" + imdbHtml + "</a>";
+       /*
+        if (goodreadsId !== null) {
+            goodreadsHtml = "<a target='_blank' href='https://www.goodreads.com/book/show" + goodreadsId + "'>" + goodreadsHtml + "</a>";
         }
+        */
 
-        div.innerHTML = imdbHtml;
-        div.className = 'imdbRating';
-        div.id = divId;
-        synopsis.parentNode.insertBefore(div, synopsis);
-    }
-}
-
-function addRottenRating(rottenRating, name, year) {
-    if (rottenRating === "undefined" || rottenRating === "N/A")
-        return;
-
-    var divId = 'rotten' + getDivId(name, year);
-    var divEl = document.getElementById(divId);
-    if (divEl && (divEl.offsetWidth || divEl.offsetHeight || divEl.getClientRects().length)) {
-        return;
-    }
-
-    var synopsises = document.querySelectorAll('.jawBone .synopsis');
-    if (synopsises.length) {
-        var synopsis = synopsises[synopsises.length - 1];
         var div = document.createElement('div');
-        div.innerHTML = 'Rotten Tomatoes rating : ' + rottenRating;
-        div.className = 'rottenRating';
+        div.innerHTML = goodreadsHtml;
+        div.className = 'goodreadsRating';
         div.id = divId;
-        synopsis.parentNode.insertBefore(div, synopsis);
-    }
+        bookInfo.append(div);
 }
 
-function addMetaScore(metaScore, name, year) {
-    if (metaScore === "undefined" || metaScore === "N/A")
-        return;
-
-    var divId = 'metaScore' + getDivId(name, year);
-    var divEl = document.getElementById(divId);
-    if (divEl && (divEl.offsetWidth || divEl.offsetHeight || divEl.getClientRects().length)) {
-        return;
-    }
-
-    var synopsises = document.querySelectorAll('.jawBone .synopsis');
-    if (synopsises.length) {
-        var synopsis = synopsises[synopsises.length - 1];
-        var div = document.createElement('div');
-        div.innerHTML = 'MetaCritic score : ' + metaScore;
-        div.className = 'metaScore';
-        div.id = divId;
-        synopsis.parentNode.insertBefore(div, synopsis);
-    }
-}
-
-function getDivId(name, year) {
+function getDivId(name, author) {
+    console.log(name);
+    console.log(author);
     name = name.replace(/[^a-z0-9\s]/gi, '');
     name = name.replace(/ /g, '');
-    return "aaa" + name + "_" + year;
+    author = author.replace(/[^a-z0-9\s]/gi, '');
+    author = author.replace(/ /g, '');
+    return "aaa" + name + "_" + author;
 }
 
-function makeRequestAndAddRating(name, year) {
+function makeRequestAndAddRating(bookInfo, name, author) {
 
+    console.log("Making request for: " + name + " by " + author);
+    var goodreadsMetaData = "5.0:100:4000";
+    window.sessionStorage.setItem(name + ":" + author, goodreadsMetaData);
+    addGoodreadsRating(goodreadsMetaData, bookInfo, name, author);
+    /*
     var url = "https://www.omdbapi.com/?apikey=<secret_key>&t=" + encodeURI(name)
         + "&y=" + year + "tomatoes=true";
 
@@ -154,20 +113,17 @@ function makeRequestAndAddRating(name, year) {
         }
     };
     xhr.send();
+    */
 }
 
-function extractRottenTomatoesRating(ratings) {
-    const rottenRating = ratings.filter(rating => rating.Source === "Rotten Tomatoes");
-    return rottenRating[0] ? rottenRating[0].Value : "undefined";
-}
-
-
+fetchBookInfo(); // one to kick it off
 if (window.sessionStorage !== "undefined") {
+    console.log("Hello");
     var target = document.body;
     // create an observer instance
     var observer = new MutationObserver(function (mutations) {
         mutations.forEach(function (mutation) {
-            window.setTimeout(fetchMovieNameYear, 5);
+            window.setTimeout(fetchBookInfo, 5);
         });
     });
     // configuration of the observer:

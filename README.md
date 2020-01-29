@@ -1,15 +1,10 @@
-# IMDb-ratings-on-netflix
+# Goodreads-ratings-on-overdrive
 
-It's irritating when you have to open a new tab and search for ratings of movies, while you are trying to find a movie to watch on Netflix. Using this extension you can see IMDb and Rotten Tomatoes rating of movies directly on Netflix.
+It's irritating when you have to open a new tab and search for ratings of books, while you are trying to find a new one to check out on Overdrive.
+Using this extension you can see Goodreads ratings of books directly in Overdrive.
 
-Chrome extension : https://chrome.google.com/webstore/detail/imdb-ratings-on-netflix/ohonjgnjobblbhfeamidafpnbkppbljh
+Chrome extension : _not yet published_
 
-Firefox add-on : https://addons.mozilla.org/en-US/firefox/addon/imdb-ratings-on-netflix/
+Firefox add-on : _not yet published_
 
-# Ratings Supported
-* IMDb (along with votes count and IMDb link)
-* Rotten tomatoes
-* Meta Crtic
-
-# TODO
-Support Google like percentage
+Based off the extension `imdb-ratings-on-netflix`, available open source at [https://github.com/pawanmaurya/imdb-ratings-on-netflix](https://github.com/pawanmaurya/imdb-ratings-on-netflix).
