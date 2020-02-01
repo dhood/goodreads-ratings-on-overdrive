@@ -11,6 +11,9 @@
     "js": ["content.js"]
   }
   ],
+  "web_accessible_resources": [
+      "config.js"
+  ],
   "permissions": [
       "https://*.overdrive.com/*"
   ]

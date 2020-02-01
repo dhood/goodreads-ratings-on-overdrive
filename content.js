@@ -1,3 +1,14 @@
+// Inject the config file, which sets this application's API key
+var s = document.createElement('script');  // Script that will be run in the DOM.
+s.src = chrome.runtime.getURL('config.js');
+s.onload = function() {
+    goodreadsApiKey = window.sessionStorage.getItem("goodreadsApiKey");
+    // Remove the script element after the script has been loaded (cleanup).
+    this.remove();
+};
+(document.head || document.documentElement).appendChild(s);
+
+
 function fetchBookInfo() {
     // Fetch the info panel for all books displayed on the current page.
     var bookList = document.querySelectorAll('.InfoPanel');
@@ -90,7 +101,7 @@ function makeRequestAndAddRating(bookInfo, name, author) {
     // Note(dhood): cors-anywhere is used because Goodreads API doesn't support CORS header itself.
     // See: https://www.goodreads.com/topic/show/17893514-cors-access-control-allow-origin
     var url = "https://cors-anywhere.herokuapp.com/" +
-      "https://www.goodreads.com/search/index.xml?key=<api_key>&format=xml" +
+      "https://www.goodreads.com/search/index.xml?key=" + goodreadsApiKey + "&format=xml" +
       "&q=" + encodeURI(name) + "+" + encodeURI(author);
 
     var xhr = new XMLHttpRequest();
