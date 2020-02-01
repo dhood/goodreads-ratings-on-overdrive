@@ -116,22 +116,40 @@ function makeRequestAndAddRating(bookInfo, name, author) {
 
 function selectTopQueryMatch(apiResponse) {
   // The API response gives multiple books (potentially).
-  // We include the author name in the search query to bring appropriate book to the top.
+  // We include the author name in the search query to bring the appropriate book to the top.
   // However, it prioritises book titles with the author's name in the title.
-  // We search through the responses until we find one with the correct author.
+  // If we were to choose the top search result, study guides and summaries would get chosen
+  // over the actual book written by the author.
+  // See, for example: https://www.goodreads.com/search?q=The+Dutch+House+ann+patchett&search_type=books
+  // This function tries to select the actual book.
+
+  var goodreadsMetaData = "?:?:?";
 
   searchResults = apiResponse.querySelectorAll('search results work');
   if (!searchResults) {
-    return "?:?:?";
+      return goodreadsMetaData;
   }
-  // TODO(dhood): Intelligently select the score to display.
-  //for (let searchResult of searchResults) {
-  let searchResult = searchResults[0];
-      var searchResultName = searchResult.querySelector("author name").textContent;
-      var searchResultId = searchResult.querySelector("best_book id").textContent;
-      var searchResultRating = searchResult.querySelector("average_rating").textContent;
+
+  // Find the search result with the highest review count, as it's most likely to be the book we
+  // were actually searching for.
+  // Potential risk with this approach: may select the wrong book of a book series, for example,
+  // if it is in the search results and has more reviews than the book searched for.
+
+  // Alternative approach considered: search through the results in the ranking from Goodreads,
+  // until one is found without the author in the title.
+  // That approach, however, relies on 1) Goodreads and Overdrive using the same author name, and
+  // 2) the most appropriate response definitely not containing the author name.
+  var highestVoteCount = -1;
+  for (let searchResult of searchResults) {
       var searchResultVoteCount = searchResult.querySelector("ratings_count").textContent;
-      var goodreadsMetaData = searchResultRating + ":" + searchResultVoteCount + ":" + searchResultId;
+      if (parseInt(searchResultVoteCount) > highestVoteCount) {
+          var searchResultName = searchResult.querySelector("author name").textContent;
+          var searchResultId = searchResult.querySelector("best_book id").textContent;
+          var searchResultRating = searchResult.querySelector("average_rating").textContent;
+          goodreadsMetaData = searchResultRating + ":" + searchResultVoteCount + ":" + searchResultId;
+          highestVoteCount = searchResultVoteCount;
+      }
+  }
   return goodreadsMetaData;
 }
 
