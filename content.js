@@ -87,33 +87,45 @@ function makeRequestAndAddRating(bookInfo, name, author) {
     var goodreadsMetaData = "5.0:100:4000";
     window.sessionStorage.setItem(name + ":" + author, goodreadsMetaData);
     addGoodreadsRating(goodreadsMetaData, bookInfo, name, author);
-    /*
-    var url = "https://www.omdbapi.com/?apikey=<secret_key>&t=" + encodeURI(name)
-        + "&y=" + year + "tomatoes=true";
+    // Note(dhood): cors-anywhere is used because Goodreads API doesn't support CORS header itself.
+    // See: https://www.goodreads.com/topic/show/17893514-cors-access-control-allow-origin
+    var url = "https://cors-anywhere.herokuapp.com/" +
+      "https://www.goodreads.com/search/index.xml?key=<api_key>&format=xml" +
+      "&q=" + encodeURI(name) + "+" + encodeURI(author);
 
     var xhr = new XMLHttpRequest();
     xhr.open('GET', url);
-    xhr.withCredentials = true;
-    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.withCredentials = false;
+    xhr.setRequestHeader('Content-Type', 'application/xml');
     xhr.onload = function () {
         if (xhr.status === 200) {
-            var apiResponse = JSON.parse(xhr.responseText);
+            var apiResponse = parseXml(xhr.responseText);
+            console.log(apiResponse);
+            bookData = selectTopQueryMatch(apiResponse);
+            /*
             var imdbRating = apiResponse["imdbRating"];
             var imdbVoteCount = apiResponse["imdbVotes"];
             var imdbId = apiResponse["imdbID"];
-            var rottenRating = extractRottenTomatoesRating(apiResponse["Ratings"]);
-            var metaScore = apiResponse["Metascore"];
             var imdbMetaData = imdbRating + ":" + imdbVoteCount + ":" + imdbId;
             window.sessionStorage.setItem(name + ":" + year, imdbMetaData);
-            window.sessionStorage.setItem("metaScore:" + name + ":" + year, metaScore)
-            window.sessionStorage.setItem("rotten:" + name + ":" + year, rottenRating);
             addIMDBRating(imdbMetaData, name, year);
-            addRottenRating(rottenRating, name, year);
-            addMetaScore(metaScore, name, year);
+            */
         }
     };
+    console.log("Sending request");
     xhr.send();
-    */
+}
+
+function selectTopQueryMatch(apiResponse) {
+  // The API response gives multiple books (potentially).
+  // We include the author name in the search query to bring appropriate book to the top.
+  // However, it prioritises book titles with the author's name in the title.
+  // We search through the responses until we find one with the correct author.
+  return;
+}
+
+function parseXml(xmlStr) {
+   return new window.DOMParser().parseFromString(xmlStr, "text/xml");
 }
 
 fetchBookInfo(); // one to kick it off
