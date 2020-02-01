@@ -41,7 +41,7 @@ function fetchBookInfo() {
     }
 };
 
-function addGoodreadsRating(goodreadsMetaData, bookInfo, titleName, titleAuthor) {
+function addGoodreadsRating(bookMetaData, bookInfo, titleName, titleAuthor) {
     console.log(titleName);
     console.log(titleAuthor);
     var divId = getDivId(titleName, titleAuthor);
@@ -53,21 +53,17 @@ function addGoodreadsRating(goodreadsMetaData, bookInfo, titleName, titleAuthor)
     }
 
 
-    // TODO(dhood): fetch actual score data.
-    /*
-        var imdbRatingPresent = imdbMetaData && (imdbMetaData !== 'undefined') && (imdbMetaData !== "N/A");
-        var imdbVoteCount = null;
-        var imdbRating = null;
-        var imdbId = null;
-        if (imdbRatingPresent) {
-            var imdbMetaDataArr = imdbMetaData.split(":");
-            imdbRating = imdbMetaDataArr[0];
-            imdbVoteCount = imdbMetaDataArr[1];
-            imdbId = imdbMetaDataArr[2];
-        }
-        var imdbHtml = 'Goodreads rating : ' + (goodreadsRatingPresent ? goodreadsRating : "N/A") + (goodreadsVoteCount ? ", Vote Count : " + goodreadsVoteCount : "");
-        */
-       var goodreadsHtml = 'Goodreads rating: 5';
+    var ratingPresent = bookMetaData && (bookMetaData !== 'undefined') && (bookMetaData !== "N/A");
+    var voteCount = null;
+    var rating = null;
+    var bookId = null;
+    if (ratingPresent) {
+        var metaDataArr = bookMetaData.split(":");
+        rating = metaDataArr[0];
+        voteCount = metaDataArr[1];
+        bookId = metaDataArr[2];
+    }
+    var goodreadsHtml = 'Goodreads rating : ' + (ratingPresent ? rating : "N/A") + (voteCount ? ", Vote Count : " + voteCount : "");
 
        /*
         if (goodreadsId !== null) {
@@ -95,9 +91,6 @@ function getDivId(name, author) {
 function makeRequestAndAddRating(bookInfo, name, author) {
 
     console.log("Making request for: " + name + " by " + author);
-    var goodreadsMetaData = "5.0:100:4000";
-    window.sessionStorage.setItem(name + ":" + author, goodreadsMetaData);
-    addGoodreadsRating(goodreadsMetaData, bookInfo, name, author);
     // Note(dhood): cors-anywhere is used because Goodreads API doesn't support CORS header itself.
     // See: https://www.goodreads.com/topic/show/17893514-cors-access-control-allow-origin
     var url = "https://cors-anywhere.herokuapp.com/" +
@@ -113,14 +106,8 @@ function makeRequestAndAddRating(bookInfo, name, author) {
             var apiResponse = parseXml(xhr.responseText);
             console.log(apiResponse);
             bookData = selectTopQueryMatch(apiResponse);
-            /*
-            var imdbRating = apiResponse["imdbRating"];
-            var imdbVoteCount = apiResponse["imdbVotes"];
-            var imdbId = apiResponse["imdbID"];
-            var imdbMetaData = imdbRating + ":" + imdbVoteCount + ":" + imdbId;
-            window.sessionStorage.setItem(name + ":" + year, imdbMetaData);
-            addIMDBRating(imdbMetaData, name, year);
-            */
+            window.sessionStorage.setItem(name + ":" + author, bookData);
+            addGoodreadsRating(bookData, bookInfo, name, author);
         }
     };
     console.log("Sending request");
@@ -132,7 +119,20 @@ function selectTopQueryMatch(apiResponse) {
   // We include the author name in the search query to bring appropriate book to the top.
   // However, it prioritises book titles with the author's name in the title.
   // We search through the responses until we find one with the correct author.
-  return;
+
+  searchResults = apiResponse.querySelectorAll('search results work');
+  if (!searchResults) {
+    return "?:?:?";
+  }
+  // TODO(dhood): Intelligently select the score to display.
+  //for (let searchResult of searchResults) {
+  let searchResult = searchResults[0];
+      var searchResultName = searchResult.querySelector("author name").textContent;
+      var searchResultId = searchResult.querySelector("best_book id").textContent;
+      var searchResultRating = searchResult.querySelector("average_rating").textContent;
+      var searchResultVoteCount = searchResult.querySelector("ratings_count").textContent;
+      var goodreadsMetaData = searchResultRating + ":" + searchResultVoteCount + ":" + searchResultId;
+  return goodreadsMetaData;
 }
 
 function parseXml(xmlStr) {
