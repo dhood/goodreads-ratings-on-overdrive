@@ -146,7 +146,13 @@ function parseXml(xmlStr) {
    return new window.DOMParser().parseFromString(xmlStr, "text/xml");
 }
 
-fetchBookInfo(); // one to kick it off
+// Check the page for books loaded already.
+fetchBookInfo();
+
+// Monitor the document and when changes occur, re-evaluate the book list.
+// This is used to catch books that are loaded at a later point, e.g. recommendations when
+// scrolling down the page, or items of a collection e.g. "New audiobook additions" which are
+// loaded with a slight delay compared to the rest of the page.
 if (window.sessionStorage !== "undefined") {
     console.log("Hello");
     var target = document.body;
@@ -160,6 +166,7 @@ if (window.sessionStorage !== "undefined") {
     var config = {
         attributes: true,
         childList: true,
+        subtree: true,  // necessary because books are not added as direct children of body
         characterData: true
     };
     observer.observe(target, config);
