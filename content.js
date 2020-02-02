@@ -156,16 +156,16 @@ if (window.sessionStorage !== "undefined") {
     var target = document.body;
     // create an observer instance
     var observer = new MutationObserver(function (mutations) {
-        mutations.forEach(function (mutation) {
-            window.setTimeout(fetchBookInfo, 5);
-        });
+        // Even though multiple mutations may have occured, we call the function once because
+        // it will respond to all book titles on the page.
+        window.setTimeout(fetchBookInfo, 5);
     });
     // configuration of the observer:
     var config = {
-        attributes: true,
         childList: true,
         subtree: true,  // necessary because books are not added as direct children of body
-        characterData: true
+        attributes: false,
+        characterData: false
     };
     observer.observe(target, config);
 }
