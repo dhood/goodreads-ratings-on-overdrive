@@ -125,9 +125,9 @@ function selectTopQueryMatch(apiResponse) {
   // if it is in the search results and has more reviews than the book searched for.
 
   // Alternative approach considered: search through the results in the ranking from Goodreads,
-  // until one is found without the author in the title.
-  // That approach, however, relies on 1) Goodreads and Overdrive using the same author name, and
-  // 2) the most appropriate response definitely not containing the author name.
+  // until one is found with the same author name.
+  // That approach, however, relies on Goodreads and Overdrive using the same author name, however.
+  // As a (true) example: "Richard R. George" on Goodreads is "Richard George" on Overdrive.
   var highestVoteCount = -1;
   for (let searchResult of searchResults) {
       var searchResultVoteCount = searchResult.querySelector("ratings_count").textContent;
