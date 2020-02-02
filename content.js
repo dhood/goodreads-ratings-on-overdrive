@@ -33,9 +33,9 @@ function fetchBookInfo() {
 function addGoodreadsRating(bookMetaData, bookInfo, titleName, titleAuthor) {
     console.log(titleName);
     console.log(titleAuthor);
-    var divId = getDivId(titleName, titleAuthor);
+    var divId = getDivId(bookInfo);
 
-    // TODO(dhood): allow duplicates of title (audiobook + ebook) to each have div added.
+    // If we've already added the review score, don't do it again.
     var divEl = document.getElementById(divId);
     if (divEl && (divEl.offsetWidth || divEl.offsetHeight || divEl.getClientRects().length)) {
         return;
@@ -67,14 +67,12 @@ function addGoodreadsRating(bookMetaData, bookInfo, titleName, titleAuthor) {
     bookInfo.append(div);
 }
 
-function getDivId(name, author) {
-    console.log(name);
-    console.log(author);
-    name = name.replace(/[^a-z0-9\s]/gi, '');
-    name = name.replace(/ /g, '');
-    author = author.replace(/[^a-z0-9\s]/gi, '');
-    author = author.replace(/ /g, '');
-    return "aaa" + name + "_" + author;
+function getDivId(bookInfo) {
+    // Each title displayed has a unique ID on Overdrive.
+    // Using Overdrive's ID helps to distinguish between ebooks and audiobooks of the same book.
+    var titleNameElem = bookInfo.querySelector('.title-name')
+    var titleOverdriveId = titleNameElem.getAttribute('data-media-id');
+    return "goodreadsReview" + titleOverdriveId;
 }
 
 function makeRequestAndAddRating(bookInfo, name, author) {
