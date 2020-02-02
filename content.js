@@ -1,6 +1,6 @@
 function fetchBookInfo() {
     // Fetch the info panel for all books displayed on the current page.
-    var bookList = document.querySelectorAll('.InfoPanel');
+    var bookList = document.querySelectorAll('.TitleInfo');
     if (bookList === null) {
         return;
     }
@@ -52,19 +52,19 @@ function addGoodreadsRating(bookMetaData, bookInfo, titleName, titleAuthor) {
         voteCount = metaDataArr[1];
         bookId = metaDataArr[2];
     }
-    var goodreadsHtml = 'Goodreads rating : ' + (ratingPresent ? rating : "N/A") + (voteCount ? ", Vote Count : " + voteCount : "");
+    var goodreadsHtml = '<p class="title-author">' + rating + " stars (" + voteCount + " votes)</p>";
 
-       /*
-        if (goodreadsId !== null) {
-            goodreadsHtml = "<a target='_blank' href='https://www.goodreads.com/book/show" + goodreadsId + "'>" + goodreadsHtml + "</a>";
-        }
-        */
+    if (bookId !== null) {
+        goodreadsHtml = "<a class='secondary-hover-underline selected' " +
+            "target='_blank' href='https://www.goodreads.com/book/show/" + bookId + "'>" +
+            goodreadsHtml + "</a>";
+    }
 
-        var div = document.createElement('div');
-        div.innerHTML = goodreadsHtml;
-        div.className = 'goodreadsRating';
-        div.id = divId;
-        bookInfo.append(div);
+    var div = document.createElement('div');
+    div.innerHTML = goodreadsHtml;
+    div.className = 'goodreadsRating';
+    div.id = divId;
+    bookInfo.append(div);
 }
 
 function getDivId(name, author) {
