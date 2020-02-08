@@ -1,3 +1,7 @@
+// Modify this URL if to your own CORS-anywhere server.
+// See the README for details on why that is necessary.
+CORS_ANYWHERE_SERVER_URL = "https://cors-anywhere-goodreads.herokuapp.com/"
+
 function fetchBookInfo() {
     // Fetch the info panel for all books displayed on the current page.
     var bookList = document.querySelectorAll('.TitleInfo');
@@ -80,7 +84,10 @@ function makeRequestAndAddRating(bookInfo, name, author) {
     console.log("Making request for: " + name + " by " + author);
     // Note(dhood): cors-anywhere is used because Goodreads API doesn't support CORS header itself.
     // See: https://www.goodreads.com/topic/show/17893514-cors-access-control-allow-origin
-    var url = "https://cors-anywhere.herokuapp.com/" +
+    // cors-anywhere: https://github.com/Rob--W/cors-anywhere
+    // The demo server of cors-anywhere is rate limited to 200 requests per hour, so a custom
+    // server is hosted just for this extension.
+    var url = CORS_ANYWHERE_SERVER_URL +
       "https://www.goodreads.com/search/index.xml?key=<API_KEY>&format=xml" +
       "&q=" + encodeURI(name) + "+" + encodeURI(author);
 
