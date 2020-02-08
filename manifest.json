@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
-  "name": "Goodreads rating on Overdrive",
-  "version": "0.1",
+  "name": "Goodreads ratings on Overdrive",
+  "version": "0.0.1",
   "description": "Show Goodreads ratings on Overdrive",
   "content_scripts": [
   {
@@ -10,8 +10,5 @@
     ],
     "js": ["content.js"]
   }
-  ],
-  "permissions": [
-      "https://*.overdrive.com/*"
   ]
 }
