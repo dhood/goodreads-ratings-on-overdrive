@@ -2,6 +2,11 @@
 // See the README for details on why that is necessary.
 CORS_ANYWHERE_SERVER_URL = "https://cors-anywhere-goodreads.herokuapp.com/"
 
+// How many review scores will be requested in parallel.
+// This is limited to avoid resource limitations errors e.g. net::ERR_INSUFFICIENT_RESOURCES
+MAX_PARALLEL_REQUESTS = 20
+var numRequestsPending = 0
+
 function fetchBookInfo() {
     // Fetch the info panel for all books displayed on the current page.
     var bookList = document.querySelectorAll('.TitleInfo');
@@ -81,6 +86,10 @@ function getDivId(bookInfo) {
 
 function makeRequestAndAddRating(bookInfo, name, author) {
 
+    if (numRequestsPending > MAX_PARALLEL_REQUESTS) {
+        console.log("Too many requests pending already... not sending request in order to avoid net::ERR_INSUFFICIENT_RESOURCES")
+        return
+    }
     console.log("Making request for: " + name + " by " + author);
     // Note(dhood): cors-anywhere is used because Goodreads API doesn't support CORS header itself.
     // See: https://www.goodreads.com/topic/show/17893514-cors-access-control-allow-origin
@@ -102,9 +111,11 @@ function makeRequestAndAddRating(bookInfo, name, author) {
             bookData = selectTopQueryMatch(apiResponse);
             window.sessionStorage.setItem(name + ":" + author, bookData);
             addGoodreadsRating(bookData, bookInfo, name, author);
+            numRequestsPending--
         }
     };
     console.log("Sending request");
+    numRequestsPending++
     xhr.send();
 }
 
