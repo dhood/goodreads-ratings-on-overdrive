@@ -7,6 +7,10 @@ CORS_ANYWHERE_SERVER_URL = "https://cors-anywhere-goodreads.herokuapp.com/"
 MAX_PARALLEL_REQUESTS = 20
 var numRequestsPending = 0
 
+// String stored in local storage when an API request has been attemped for a title and is pending
+// or has failed.
+var REQUEST_ATTEMPTED_TOKEN = 'undefined'
+
 function fetchBookInfo() {
     // Fetch the info panel for all books displayed on the current page.
     var bookList = document.querySelectorAll('.TitleInfo');
@@ -30,8 +34,9 @@ function fetchBookInfo() {
         var titleAuthor = titleAuthorElem.title;
 
         console.log("Retrieving storage for: " + titleName + " by " + titleAuthor);
-        var existingGoodreadsRating = window.sessionStorage.getItem(titleName + ":" + titleAuthor);
-        if ((existingGoodreadsRating !== "undefined") && (existingGoodreadsRating !== null)) {
+        var existingGoodreadsRating = window.sessionStorage.getItem(
+            getSessionStorageKey(titleName, titleAuthor));
+        if ((existingGoodreadsRating !== REQUEST_ATTEMPTED_TOKEN) && (existingGoodreadsRating !== null)) {
             addGoodreadsRating(existingGoodreadsRating, bookInfo, titleName, titleAuthor);
         } else {
             makeRequestAndAddRating(bookInfo, titleName, titleAuthor)
@@ -84,6 +89,10 @@ function getDivId(bookInfo) {
     return "goodreadsReview" + titleOverdriveId;
 }
 
+function getSessionStorageKey(name, author) {
+  return name + ':' + author
+}
+
 function makeRequestAndAddRating(bookInfo, name, author) {
 
     if (numRequestsPending > MAX_PARALLEL_REQUESTS) {
@@ -109,13 +118,17 @@ function makeRequestAndAddRating(bookInfo, name, author) {
             var apiResponse = parseXml(xhr.responseText);
             console.log(apiResponse);
             bookData = selectTopQueryMatch(apiResponse);
-            window.sessionStorage.setItem(name + ":" + author, bookData);
+            window.sessionStorage.setItem(getSessionStorageKey(name, author), bookData);
             addGoodreadsRating(bookData, bookInfo, name, author);
             numRequestsPending--
         }
     };
     console.log("Sending request");
     numRequestsPending++
+    // Put a temporary value in storage so additional requests are not performed while waiting for
+    // a response from the first.
+    window.sessionStorage.setItem(
+        getSessionStorageKey(name, author), REQUEST_ATTEMPTED_TOKEN)
     xhr.send();
 }
 
