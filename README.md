@@ -11,17 +11,25 @@ Based off the extension `imdb-ratings-on-netflix`, available open source at [htt
 
 ## Limitations
 ### Review score cannot be found
+If the review score cannot be found, '?' will be displayed instead.
 The review score may not be found from Goodreads in the following scenario(s):
 
-  - The Overdrive book title has additional words.
+  - The Overdrive book title or author has additional words.
     - E.g. ["American Dirt (Oprah's Book Club)"](https://ncdl.overdrive.com/ncdl-sunnyvale/content/media/4727757) on Overdrive, but "American Dirt" on Goodreads.
+    - E.g. "A Dance With Fate: A Warrior Bards Novel 2" as the title name on Overdrive but "A Dance with Fate (Warrior Bards, #2)" on Goodreads.
+    - E.g. "Women Don't Owe You Pretty: The debut book from Florence Given" as the title name on Overdrive but simply "Women Don't Owe You Pretty" on Goodreads.
 
 ### Showing the wrong review score
+To help detecting when the incorrect review score has been retrieved, the number of votes contributing to the review score is displayed.
+If a popular book has a low number of votes, you should be suspicious of the review score that was retrieved.
+
 The wrong review score can be selected from Goodreads in the following scenario(s):
 
   - The Overdrive book has a subtitle that helps distinguish it from other books.
     - E.g. ["Charlie and the Chocolate Factory", subtitle "A Play"](https://goldcoast.overdrive.com/media/299552)
   on Overdrive, but "Charlie and the Chocolate Factory: A Play" on Goodreads.
+  - The author's name as shown on Overdrive is more descriptive than that used by Goodreads.
+    - E.g. "Trump Ph.D., Mary L." as the author on Overdrive but only "Mary L. Trump" on Goodreads.
 
 
 ## Developer notes
