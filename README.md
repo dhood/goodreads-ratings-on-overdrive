@@ -18,6 +18,7 @@ The review score may not be found from Goodreads in the following scenario(s):
     - E.g. ["American Dirt (Oprah's Book Club)"](https://ncdl.overdrive.com/ncdl-sunnyvale/content/media/4727757) on Overdrive, but "American Dirt" on Goodreads.
     - E.g. "A Dance With Fate: A Warrior Bards Novel 2" as the title name on Overdrive but "A Dance with Fate (Warrior Bards, #2)" on Goodreads.
     - E.g. "Women Don't Owe You Pretty: The debut book from Florence Given" as the title name on Overdrive but simply "Women Don't Owe You Pretty" on Goodreads.
+    - E.g. ["Switchers" by Dr. Dawn Graham](https://ncdl.overdrive.com/ncdl-sunnyvale/content/media/3728121?cid=1072642) on Overdrive, but by Dawn Graham on Goodreads.
 
 ### Showing the wrong review score
 To help detecting when the incorrect review score has been retrieved, the number of votes contributing to the review score is displayed.
@@ -29,7 +30,7 @@ The wrong review score can be selected from Goodreads in the following scenario(
     - E.g. ["Charlie and the Chocolate Factory", subtitle "A Play"](https://goldcoast.overdrive.com/media/299552)
   on Overdrive, but "Charlie and the Chocolate Factory: A Play" on Goodreads.
   - The author's name as shown on Overdrive is more descriptive than that used by Goodreads.
-    - E.g. "Trump Ph.D., Mary L." as the author on Overdrive but only "Mary L. Trump" on Goodreads.
+    - E.g. "Trump Ph.D., Mary L." as the author on Overdrive but only "Mary L. Trump" on Goodreads, which causes a book summary to be retrieved instead.
 
 
 ## Developer notes
