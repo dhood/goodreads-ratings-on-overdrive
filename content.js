@@ -2,6 +2,60 @@
 // See the README for details on why that is necessary.
 CORS_ANYWHERE_SERVER_URL = "https://cors-anywhere-goodreads.herokuapp.com/"
 
+// This function looks at the html of the page and extracts a list of the book infos on the page.
+// It returns a NodeList of divs that contain info of individual books.
+// Modify this function to work for the website on which you want to display book scores.
+function getNodeListOfTitleInfos() {
+    return document.querySelectorAll('.TitleInfo')
+}
+
+// This function looks at the html of a single title and extracts the name and author from its div.
+// It returns the name and author strings in a list, or null if they couldn't be extracted.
+// Modify this function to work for the website on which you want to display book scores.
+function getTitleNameAndAuthor(titleInfoDiv) {
+    var titleNameElem = titleInfoDiv.querySelector('.title-name')
+    if (!titleNameElem) {
+        return null
+    }
+    var titleName = titleNameElem.title
+
+    var titleAuthorElem = titleInfoDiv.querySelector('.title-author a')
+    if (!titleAuthorElem) {
+        return null
+    }
+    var titleAuthor = titleAuthorElem.title
+    return [titleName, titleAuthor]
+}
+
+// This function takes text summarising the review score and converts it to formatted html for
+// display.
+// If the title was found on Goodreads, the URL to its page can also be used.
+// Modify this function to match the formatting of the website on which you want to display
+// book scores.
+function getFormattedReviewText(ratingText, goodreadsTitleUrl) {
+    var goodreadsHtml = '<p class="title-author">' + ratingText + "</p>"
+
+    if (goodreadsTitleUrl !== null) {
+        goodreadsHtml = "<a class='secondary-hover-underline selected' " +
+            "target='_blank' href='" + goodreadsTitleUrl + "'>" +
+            goodreadsHtml + "</a>"
+    }
+    return goodreadsHtml
+}
+
+// This function attempts to create a unique ID for each item that may be on a page.
+// It takes the info div of a single title and returns a string for its ID.
+// There is sometimes a need to distinguish between items that share the same
+// Goodreads review: ebooks and audiobooks of the same title, for example.
+// This may be done by leveraging unique IDs used by the website itself, if available.
+function getTitleUniqueId(titleInfoDiv) {
+    var titleNameElem = titleInfoDiv.querySelector('.title-name')
+    return titleNameElem.getAttribute('data-media-id');
+}
+
+
+// ------------------ The rest of the code should not need to be modified.
+
 // How many review scores will be requested in parallel.
 // This is limited to avoid resource limitations errors e.g. net::ERR_INSUFFICIENT_RESOURCES
 MAX_PARALLEL_REQUESTS = 20
@@ -13,7 +67,7 @@ var REQUEST_ATTEMPTED_TOKEN = 'undefined'
 
 function fetchBookInfo() {
     // Fetch the info panel for all books displayed on the current page.
-    var bookList = document.querySelectorAll('.TitleInfo');
+    var bookList = getNodeListOfTitleInfos()
     if (bookList === null) {
         return;
     }
@@ -21,17 +75,11 @@ function fetchBookInfo() {
     // Iterate over all books on the page.
     for (let bookInfo of bookList) {
 
-        var titleNameElem = bookInfo.querySelector('.title-name')
-        if (!titleNameElem) {
-            break;
+        returnValue = getTitleNameAndAuthor(bookInfo)
+        if (!returnValue) {
+            continue
         }
-        var titleName = titleNameElem.title;
-
-        var titleAuthorElem = bookInfo.querySelector('.title-author a')
-        if (!titleAuthorElem) {
-            break;
-        }
-        var titleAuthor = titleAuthorElem.title;
+        [titleName, titleAuthor] = returnValue
 
         console.log("Retrieving storage for: " + titleName + " by " + titleAuthor);
         var existingGoodreadsRating = window.sessionStorage.getItem(
@@ -66,27 +114,21 @@ function addGoodreadsRating(bookMetaData, bookInfo, titleName, titleAuthor) {
         voteCount = metaDataArr[1];
         bookId = metaDataArr[2];
     }
-    var goodreadsHtml = '<p class="title-author">' + rating + " stars (" + voteCount + " votes)</p>";
-
-    if (bookId !== null) {
-        goodreadsHtml = "<a class='secondary-hover-underline selected' " +
-            "target='_blank' href='https://www.goodreads.com/book/show/" + bookId + "'>" +
-            goodreadsHtml + "</a>";
+    var ratingText = rating + " stars (" + voteCount + " votes)"
+    var goodreadsTitleUrl = null
+    if (bookId !== null && bookId != "?") {
+        goodreadsTitleUrl = "https://www.goodreads.com/book/show/" + bookId
     }
 
-    var div = document.createElement('div');
-    div.innerHTML = goodreadsHtml;
-    div.className = 'goodreadsRating';
-    div.id = divId;
-    bookInfo.append(div);
+    var div = document.createElement('div')
+    div.innerHTML = getFormattedReviewText(ratingText, goodreadsTitleUrl)
+    div.className = 'goodreadsRating'
+    div.id = divId
+    bookInfo.append(div)
 }
 
 function getDivId(bookInfo) {
-    // Each title displayed has a unique ID on Overdrive.
-    // Using Overdrive's ID helps to distinguish between ebooks and audiobooks of the same book.
-    var titleNameElem = bookInfo.querySelector('.title-name')
-    var titleOverdriveId = titleNameElem.getAttribute('data-media-id');
-    return "goodreadsReview" + titleOverdriveId;
+    return "goodreadsReview-" + getTitleUniqueId(bookInfo)
 }
 
 function getSessionStorageKey(name, author) {
